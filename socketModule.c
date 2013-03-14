@@ -31,8 +31,8 @@ ssize_t log_write(struct file *filp, const char __user *buffer, unsigned long le
 
 	np_t.name = "LRNG";
 	strlcpy(np_t.dev_name, "eth0", IFNAMSIZ);
-	np_t.local_ip = htonl(INADDR_LOCAL);
-	np_t.remote_ip = htonl(INADDR_SEND);
+	np_t.local_ip = ntohl(INADDR_LOCAL);
+	np_t.remote_ip = ntohl(INADDR_SEND);
 	np_t.local_port = 12000;
 	np_t.remote_port = 12000;
 	memset(np_t.remote_mac, 0xff, ETH_ALEN);
