@@ -12,7 +12,7 @@
 MODULE_LICENSE("GPL");
 
 #define MODULE_NAME		"[socketModule] "
-#define LOG_SIZE		4*PAGE_SIZE
+#define LOG_SIZE		PAGE_SIZE
 #define MESSAGE_SIZE	1024
 #define INADDR_SEND		((unsigned long int) 0x803D6868) //128.61.104.104
 #define INADDR_LOCAL	((unsigned long int) 0xc0a80a55) //192.168.10.85
@@ -21,18 +21,18 @@ static struct socket *sock;
 static struct proc_dir_entry *proc_entry;
 static char *log_buffer;
 
-static struct netpoll *np = NULL;
-static struct netpoll np_t;
+/*static struct netpoll *np = NULL;
+static struct netpoll np_t; */
 
 ssize_t log_write(struct file *filp, const char __user *buffer, unsigned long len, void *data) {
 
-	char message[100];
+	/* char message[100];
 	int plen;
 
 	np_t.name = "LRNG";
 	strlcpy(np_t.dev_name, "eth0", IFNAMSIZ);
-	np_t.local_ip = INADDR_LOCAL;
-	np_t.remote_ip = INADDR_SEND;
+	np_t.local_ip = htonl(INADDR_LOCAL);
+	np_t.remote_ip = htonl(INADDR_SEND);
 	np_t.local_port = 12000;
 	np_t.remote_port = 12000;
 	memset(np_t.remote_mac, 0xff, ETH_ALEN);
@@ -42,7 +42,9 @@ ssize_t log_write(struct file *filp, const char __user *buffer, unsigned long le
 
 	sprintf(message, "%d", 42);
 	plen = strlen(message);
-	netpoll_send_udp(np, message, plen);
+	netpoll_send_udp(np, message, plen); */
+
+	memset(log_buffer, 0, LOG_SIZE);
 
 	if(copy_from_user(&log_buffer[0], buffer, len)) {
 		return -EFAULT;
@@ -52,7 +54,11 @@ ssize_t log_write(struct file *filp, const char __user *buffer, unsigned long le
 }
 
 int log_read(char *page, char **start, off_t offset, int count, int *eof, void *data) {
-	return 0;
+	int len;
+
+	len = sprintf(page, "%s", log_buffer);
+
+	return len;
 }
 
 int init_socket_module(void) {
